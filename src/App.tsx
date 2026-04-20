@@ -157,17 +157,16 @@ export default function App() {
   }
 
   const handleSubmit = () => {
-  const tg = window.Telegram?.WebApp;
+  const app = window.Telegram?.WebApp
 
-  if (tg?.sendData) {
-    tg.sendData(JSON.stringify(payload));
-    tg.close?.();
-    return;
+  if (app?.sendData) {
+    app.sendData(JSON.stringify(payload))
+    return
   }
 
-  console.log("Telegram WebApp sendData is not available. Payload:", payload);
-  setSubmitted(true);
-};
+  console.log('Telegram WebApp not found. Payload:', payload)
+  setSubmitted(true)
+}
 
   return (
     <div className="app-shell">

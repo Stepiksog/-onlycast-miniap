@@ -157,6 +157,8 @@ export default function App() {
   }
 
   const handleSubmit = () => {
+  if (!canSubmit) return
+
   const app = window.Telegram?.WebApp
 
   if (app?.sendData) {
@@ -167,7 +169,6 @@ export default function App() {
   console.log('Telegram WebApp not found. Payload:', payload)
   setSubmitted(true)
 }
-
   return (
     <div className="app-shell">
       <div className="hero">
@@ -329,7 +330,14 @@ export default function App() {
             <textarea className="textarea" value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Например: требуется запись интервью, важен монтаж" />
           </div>
           <div style={{ marginTop: 16 }}>
-            <button className="primary-btn" onClick={handleSubmit} disabled={!canSubmit}>Забронировать время</button>
+          <button
+  type="button"
+  className={`primary-btn ${!canSubmit ? 'is-disabled' : ''}`}
+  onClick={handleSubmit}
+  aria-disabled={!canSubmit}
+>
+  Забронировать время
+</button>
             <div className="center-note">Мы свяжемся с Вами для подтверждения.</div>
           </div>
 

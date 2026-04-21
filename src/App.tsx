@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
+import { useEffect, useMemo, useState } from 'react'
+
 declare global {
   interface Window {
     Telegram?: {
@@ -22,17 +24,6 @@ declare global {
           disable: () => void
           onClick: (cb: () => void) => void
           offClick: (cb: () => void) => void
-        }
-      }
-    }
-  }
-}
-        initDataUnsafe?: {
-          user?: {
-            first_name?: string
-            last_name?: string
-            username?: string
-          }
         }
       }
     }

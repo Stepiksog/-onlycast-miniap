@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { useEffect, useMemo, useState } from 'react'
-
 declare global {
   interface Window {
     Telegram?: {
@@ -95,6 +93,7 @@ export default function App() {
   useEffect(() => {
     const app = window.Telegram?.WebApp
     if (!app) return
+
     app.ready()
     app.expand()
 
@@ -106,27 +105,6 @@ export default function App() {
       setTelegramContact(`@${tgUser.username}`)
     }
   }, [name, telegramContact])
-  useEffect(() => {
-  const app = window.Telegram?.WebApp
-  const mainButton = app?.MainButton
-
-  if (!mainButton) return
-
-  mainButton.setText('Забронировать время')
-  mainButton.show()
-
-  if (canSubmit) {
-    mainButton.enable()
-  } else {
-    mainButton.disable()
-  }
-
-  mainButton.onClick(handleSubmit)
-
-  return () => {
-    mainButton.offClick(handleSubmit)
-  }
-}, [canSubmit, payload])
 
   useEffect(() => {
     setSelectedSlots([])
@@ -136,6 +114,7 @@ export default function App() {
     const timer = window.setInterval(() => {
       setActiveImage((prev) => (prev + 1) % STUDIO_IMAGES.length)
     }, 2800)
+
     return () => window.clearInterval(timer)
   }, [])
 
@@ -155,11 +134,14 @@ export default function App() {
     if (service === 'shorts') {
       return { base: 0, editing: 0, shorts: SHORTS_PACKAGE_PRICE, host: 0, total: SHORTS_PACKAGE_PRICE }
     }
+
     if (service === 'host') {
       return { base: 0, editing: 0, shorts: 0, host: HOST_PACKAGE_PRICE, total: HOST_PACKAGE_PRICE }
     }
+
     const base = STUDIO_PRICE_PER_HOUR * selectedHours
     const editing = needEditing ? EDITING_PRICE_PER_SOURCE_HOUR * selectedHours : 0
+
     return { base, editing, shorts: 0, host: 0, total: base + editing }
   }, [service, needEditing, selectedHours])
 
@@ -189,18 +171,42 @@ export default function App() {
   }
 
   const handleSubmit = () => {
-  if (!canSubmit) return
+    if (!canSubmit) return
 
-  const app = window.Telegram?.WebApp
+    const app = window.Telegram?.WebApp
 
-  if (app?.sendData) {
-    app.sendData(JSON.stringify(payload))
-    return
+    if (app?.sendData) {
+      app.sendData(JSON.stringify(payload))
+      setSubmitted(true)
+      return
+    }
+
+    console.log('Telegram WebApp not found. Payload:', payload)
+    setSubmitted(true)
   }
 
-  console.log('Telegram WebApp not found. Payload:', payload)
-  setSubmitted(true)
-}
+  useEffect(() => {
+    const app = window.Telegram?.WebApp
+    const mainButton = app?.MainButton
+
+    if (!mainButton) return
+
+    mainButton.setText('Забронировать время')
+    mainButton.show()
+
+    if (canSubmit) {
+      mainButton.enable()
+    } else {
+      mainButton.disable()
+    }
+
+    mainButton.onClick(handleSubmit)
+
+    return () => {
+      mainButton.offClick(handleSubmit)
+    }
+  }, [canSubmit, payload])
+
   return (
     <div className="app-shell">
       <div className="hero">
@@ -212,8 +218,7 @@ export default function App() {
           <div className="badge">Запись за 1 минуту</div>
         </div>
         <p className="hero-text">
-          Выберите услугу, получите предварительную стоимость, выберите удобное время и
-          забронируйте запись в студии.
+          Выберите услугу, получите предварительную стоимость, выберите удобное время и забронируйте запись в студии.
         </p>
       </div>
 
@@ -233,6 +238,7 @@ export default function App() {
               <p className="gallery-overlay-text">Несколько ракурсов студии до бронирования.</p>
             </div>
           </div>
+
           <div className="dots">
             {STUDIO_IMAGES.map((_, index) => (
               <button
@@ -249,10 +255,22 @@ export default function App() {
         <div className="card">
           <h2 className="card-title">Что входит в съёмку</h2>
           <div className="features">
-            <div className="feature"><div className="feature-icon">📷</div><div className="feature-label">3 камеры Sony 4K</div></div>
-            <div className="feature"><div className="feature-icon">🎙️</div><div className="feature-label">Микрофоны Shure</div></div>
-            <div className="feature"><div className="feature-icon">💡</div><div className="feature-label">Студийный свет</div></div>
-            <div className="feature"><div className="feature-icon">🛠️</div><div className="feature-label">Помощь на площадке</div></div>
+            <div className="feature">
+              <div className="feature-icon">📷</div>
+              <div className="feature-label">3 камеры Sony 4K</div>
+            </div>
+            <div className="feature">
+              <div className="feature-icon">🎙️</div>
+              <div className="feature-label">Микрофоны Shure</div>
+            </div>
+            <div className="feature">
+              <div className="feature-icon">💡</div>
+              <div className="feature-label">Студийный свет</div>
+            </div>
+            <div className="feature">
+              <div className="feature-icon">🛠️</div>
+              <div className="feature-label">Помощь на площадке</div>
+            </div>
           </div>
         </div>
 
@@ -262,6 +280,7 @@ export default function App() {
             {(Object.keys(SERVICE_META) as ServiceKey[]).map((key) => {
               const item = SERVICE_META[key]
               const isActive = service === key
+
               return (
                 <button
                   key={key}
@@ -283,6 +302,7 @@ export default function App() {
 
         <div className="card">
           <h2 className="card-title">2. Параметры заявки</h2>
+
           <div className="field">
             <label className="label">Укажите желаемую дату</label>
             <div className="help">После выбора даты Вы сможете выбрать удобное время записи.</div>
@@ -305,7 +325,10 @@ export default function App() {
           {shootDate && (
             <div style={{ marginTop: 16 }}>
               <div className="label">Выберите удобные часы записи</div>
-              <div className="help" style={{ marginTop: 6 }}>График работы студии: с 10:00 до 22:00. Можно выбрать один или несколько часов.</div>
+              <div className="help" style={{ marginTop: 6 }}>
+                График работы студии: с 10:00 до 22:00. Можно выбрать один или несколько часов.
+              </div>
+
               <div className="slot-grid" style={{ marginTop: 12 }}>
                 {availableSlots.map((slot) => (
                   <button
@@ -343,27 +366,42 @@ export default function App() {
               <span>Итого</span>
               <span>{estimate.total.toLocaleString('ru-RU')} ₽</span>
             </div>
-            <div className="help">Расчёт является предварительным. Итоговая стоимость может изменяться в зависимости от задач и дополнительных опций.</div>
+            <div className="help">
+              Расчёт является предварительным. Итоговая стоимость может изменяться в зависимости от задач и дополнительных опций.
+            </div>
           </div>
         </div>
 
         <div className="card">
           <h2 className="card-title">4. Отправить заявку в студию</h2>
+
           <div className="field">
             <label className="label">Ваше имя</label>
             <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Как к Вам обращаться" />
           </div>
+
           <div className="field" style={{ marginTop: 14 }}>
             <label className="label">Ваш Telegram для связи</label>
-            <input className="input" value={telegramContact} onChange={(e) => setTelegramContact(e.target.value)} placeholder="@username или номер" />
+            <input
+              className="input"
+              value={telegramContact}
+              onChange={(e) => setTelegramContact(e.target.value)}
+              placeholder="@username или номер"
+            />
           </div>
+
           <div className="field" style={{ marginTop: 14 }}>
             <label className="label">Комментарий к заявке</label>
-            <textarea className="textarea" value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Например: требуется запись интервью, важен монтаж" />
+            <textarea
+              className="textarea"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Например: требуется запись интервью, важен монтаж"
+            />
           </div>
-<div className="center-note">
-  Кнопка отправки доступна внизу интерфейса Telegram.
-</div>
+
+          <div style={{ marginTop: 16 }}>
+            <div className="center-note">Кнопка отправки доступна внизу интерфейса Telegram.</div>
             <div className="center-note">Мы свяжемся с Вами для подтверждения.</div>
           </div>
 
@@ -371,7 +409,9 @@ export default function App() {
             <div style={{ display: 'grid', gap: 12, marginTop: 16 }}>
               <div className="success">
                 <p className="success-title">Заявка успешно сформирована</p>
-                <p className="success-text">В Telegram Mini App данные будут отправлены боту. Ниже показан пример передаваемых данных.</p>
+                <p className="success-text">
+                  В Telegram Mini App данные будут отправлены боту. Ниже показан пример передаваемых данных.
+                </p>
               </div>
               <div className="payload">
                 <p className="payload-title">Payload preview</p>
@@ -389,6 +429,7 @@ export default function App() {
               <p className="address-title">{STUDIO_ADDRESS}</p>
             </div>
           </div>
+
           <div className="address-box" style={{ marginTop: 12 }}>
             <div>🚗</div>
             <div>

@@ -330,14 +330,25 @@ export default function App() {
             <textarea className="textarea" value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Например: требуется запись интервью, важен монтаж" />
           </div>
           <div style={{ marginTop: 16 }}>
-          <button
-  type="button"
+          <div
+  role="button"
+  tabIndex={0}
   className={`primary-btn ${!canSubmit ? 'is-disabled' : ''}`}
   onClick={handleSubmit}
+  onTouchEnd={(e) => {
+    e.preventDefault()
+    handleSubmit()
+  }}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleSubmit()
+    }
+  }}
   aria-disabled={!canSubmit}
 >
   Забронировать время
-</button>
+</div>
             <div className="center-note">Мы свяжемся с Вами для подтверждения.</div>
           </div>
 

@@ -14,6 +14,26 @@ declare global {
             username?: string
           }
         }
+        MainButton?: {
+          setText: (text: string) => void
+          show: () => void
+          hide: () => void
+          enable: () => void
+          disable: () => void
+          onClick: (cb: () => void) => void
+          offClick: (cb: () => void) => void
+        }
+      }
+    }
+  }
+}
+        initDataUnsafe?: {
+          user?: {
+            first_name?: string
+            last_name?: string
+            username?: string
+          }
+        }
       }
     }
   }
@@ -95,6 +115,27 @@ export default function App() {
       setTelegramContact(`@${tgUser.username}`)
     }
   }, [name, telegramContact])
+  useEffect(() => {
+  const app = window.Telegram?.WebApp
+  const mainButton = app?.MainButton
+
+  if (!mainButton) return
+
+  mainButton.setText('Забронировать время')
+  mainButton.show()
+
+  if (canSubmit) {
+    mainButton.enable()
+  } else {
+    mainButton.disable()
+  }
+
+  mainButton.onClick(handleSubmit)
+
+  return () => {
+    mainButton.offClick(handleSubmit)
+  }
+}, [canSubmit, payload])
 
   useEffect(() => {
     setSelectedSlots([])
@@ -329,25 +370,8 @@ export default function App() {
             <label className="label">Комментарий к заявке</label>
             <textarea className="textarea" value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Например: требуется запись интервью, важен монтаж" />
           </div>
-          <div style={{ marginTop: 16 }}>
-          <div
-  role="button"
-  tabIndex={0}
-  className={`primary-btn ${!canSubmit ? 'is-disabled' : ''}`}
-  onClick={handleSubmit}
-  onTouchEnd={(e) => {
-    e.preventDefault()
-    handleSubmit()
-  }}
-  onKeyDown={(e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      handleSubmit()
-    }
-  }}
-  aria-disabled={!canSubmit}
->
-  Забронировать время
+<div className="center-note">
+  Кнопка отправки доступна внизу интерфейса Telegram.
 </div>
             <div className="center-note">Мы свяжемся с Вами для подтверждения.</div>
           </div>

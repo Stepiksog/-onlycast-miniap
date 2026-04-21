@@ -186,12 +186,34 @@ button, input, textarea {
 }
 
 .primary-btn {
-  width: 100%; border: none; border-radius: 18px; background: #f97316; color: #fff; cursor: pointer;
-  height: 52px; font-weight: 600; transition: background .2s ease, opacity .2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 52px;
+  border-radius: 18px;
+  background: #f97316;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  pointer-events: auto;
+  position: relative;
+  z-index: 5;
 }
-.primary-btn:hover { background: #fb923c; }
-.primary-btn:disabled { opacity: 0.48; cursor: not-allowed; }
-.center-note { text-align: center; font-size: 12px; color: rgba(255,255,255,0.54); margin-top: 10px; }
+
+.primary-btn.is-disabled {
+  opacity: 0.5;
+}
+
+.center-note {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
 
 .success {
   border: 1px solid rgba(52,211,153,0.2); background: rgba(16,185,129,0.1); border-radius: 18px; padding: 14px;

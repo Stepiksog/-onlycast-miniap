@@ -7,6 +7,7 @@ declare global {
         ready: () => void
         expand: () => void
         sendData: (data: string) => void
+        initData?: string
         initDataUnsafe?: {
           user?: {
             first_name?: string
@@ -81,31 +82,39 @@ export default function App() {
   const [submitted, setSubmitted] = useState(false)
   const [activeImage, setActiveImage] = useState(0)
 
-  useEffect(() => {
-    const app = window.Telegram?.WebApp
-    if (!app) return
-    app.ready()
-    app.expand()
+ useEffect(() => {
+  const app = window.Telegram?.WebApp
+  if (!app) return
 
-    const tgUser = app.initDataUnsafe?.user
-    if (tgUser?.first_name && !name) {
-      setName([tgUser.first_name, tgUser.last_name].filter(Boolean).join(' '))
+  app.ready()
+  app.expand()
+
+  let tgUser = app.initDataUnsafe?.user
+
+  if (!tgUser && app.initData) {
+    const params = new URLSearchParams(app.initData)
+    const userRaw = params.get('user')
+
+    if (userRaw) {
+      try {
+        tgUser = JSON.parse(decodeURIComponent(userRaw))
+      } catch (error) {
+        console.log('Failed to parse Telegram user:', error)
+      }
     }
-    if (tgUser?.username && !telegramContact) {
-      setTelegramContact(`@${tgUser.username}`)
-    }
-  }, [name, telegramContact])
+  }
 
-  useEffect(() => {
-    setSelectedSlots([])
-  }, [shootDate])
+  console.log('Telegram user:', tgUser)
 
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setActiveImage((prev) => (prev + 1) % STUDIO_IMAGES.length)
-    }, 2800)
-    return () => window.clearInterval(timer)
-  }, [])
+  if (tgUser?.first_name) {
+    const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ')
+    setName(fullName)
+  }
+
+  if (tgUser?.username) {
+    setTelegramContact(`@${tgUser.username}`)
+  }
+}, [])
 
   const selectedHours = useMemo(() => selectedSlots.length, [selectedSlots])
 

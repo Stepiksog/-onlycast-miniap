@@ -8,6 +8,7 @@ declare global {
         expand: () => void
         close?: () => void
         sendData: (data: string) => void
+        initData?: string
         initDataUnsafe?: {
           user?: {
             id?: number
@@ -93,23 +94,38 @@ export default function App() {
   const [activeImage, setActiveImage] = useState(0)
 
   useEffect(() => {
-    const app = window.Telegram?.WebApp
-    if (!app) return
+  const app = window.Telegram?.WebApp
+  if (!app) return
 
-    app.ready()
-    app.expand()
+  app.ready()
+  app.expand()
 
-    const tgUser = app.initDataUnsafe?.user
+  let tgUser = app.initDataUnsafe?.user
 
-    if (tgUser?.first_name) {
-      const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ')
-      setName(fullName)
+  if (!tgUser && app.initData) {
+    const params = new URLSearchParams(app.initData)
+    const userRaw = params.get('user')
+
+    if (userRaw) {
+      try {
+        tgUser = JSON.parse(decodeURIComponent(userRaw))
+      } catch (error) {
+        console.log('Failed to parse Telegram user:', error)
+      }
     }
+  }
 
-    if (tgUser?.username) {
-      setTelegramContact(`@${tgUser.username}`)
-    }
-  }, [])
+  console.log('Telegram user:', tgUser)
+
+  if (tgUser?.first_name) {
+    const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ')
+    setName(fullName)
+  }
+
+  if (tgUser?.username) {
+    setTelegramContact(`@${tgUser.username}`)
+  }
+}, [])
 
   useEffect(() => {
     setSelectedSlots([])

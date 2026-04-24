@@ -6,9 +6,11 @@ declare global {
       WebApp?: {
         ready: () => void
         expand: () => void
+        close?: () => void
         sendData: (data: string) => void
         initDataUnsafe?: {
           user?: {
+            id?: number
             first_name?: string
             last_name?: string
             username?: string
@@ -71,6 +73,7 @@ const SERVICE_META: Record<ServiceKey, { title: string; description: string; pri
 
 function EstimateRow({ label, value }: { label: string; value: number }) {
   if (value <= 0) return null
+
   return (
     <div className="estimate-row">
       <span className="muted">{label}</span>
@@ -87,7 +90,6 @@ export default function App() {
   const [name, setName] = useState('')
   const [telegramContact, setTelegramContact] = useState('')
   const [comment, setComment] = useState('')
-  const [submitted, setSubmitted] = useState(false)
   const [activeImage, setActiveImage] = useState(0)
 
   useEffect(() => {
@@ -98,13 +100,16 @@ export default function App() {
     app.expand()
 
     const tgUser = app.initDataUnsafe?.user
-    if (tgUser?.first_name && !name) {
-      setName([tgUser.first_name, tgUser.last_name].filter(Boolean).join(' '))
+
+    if (tgUser?.first_name) {
+      const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ')
+      setName(fullName)
     }
-    if (tgUser?.username && !telegramContact) {
+
+    if (tgUser?.username) {
       setTelegramContact(`@${tgUser.username}`)
     }
-  }, [name, telegramContact])
+  }, [])
 
   useEffect(() => {
     setSelectedSlots([])
@@ -174,15 +179,10 @@ export default function App() {
     if (!canSubmit) return
 
     const app = window.Telegram?.WebApp
+    if (!app) return
 
-    if (app?.sendData) {
-      app.sendData(JSON.stringify(payload))
-      setSubmitted(true)
-      return
-    }
-
-    console.log('Telegram WebApp not found. Payload:', payload)
-    setSubmitted(true)
+    app.sendData(JSON.stringify(payload))
+    app.close?.()
   }
 
   useEffect(() => {
@@ -218,7 +218,8 @@ export default function App() {
           <div className="badge">Запись за 1 минуту</div>
         </div>
         <p className="hero-text">
-          Выберите услугу, получите предварительную стоимость, выберите удобное время и забронируйте запись в студии.
+          Выберите услугу, получите предварительную стоимость, выберите удобное время и
+          забронируйте запись в студии.
         </p>
       </div>
 
@@ -401,24 +402,9 @@ export default function App() {
           </div>
 
           <div style={{ marginTop: 16 }}>
+            <div className="center-note">Имя и Telegram подтягиваются автоматически, если они доступны в профиле.</div>
             <div className="center-note">Кнопка отправки доступна внизу интерфейса Telegram.</div>
-            <div className="center-note">Мы свяжемся с Вами для подтверждения.</div>
           </div>
-
-          {submitted && (
-            <div style={{ display: 'grid', gap: 12, marginTop: 16 }}>
-              <div className="success">
-                <p className="success-title">Заявка успешно сформирована</p>
-                <p className="success-text">
-                  В Telegram Mini App данные будут отправлены боту. Ниже показан пример передаваемых данных.
-                </p>
-              </div>
-              <div className="payload">
-                <p className="payload-title">Payload preview</p>
-                <pre>{JSON.stringify(payload, null, 2)}</pre>
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="card">

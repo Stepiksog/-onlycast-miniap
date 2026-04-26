@@ -6,14 +6,25 @@ declare global {
       WebApp?: {
         ready: () => void
         expand: () => void
+        close?: () => void
         sendData: (data: string) => void
         initData?: string
         initDataUnsafe?: {
           user?: {
+            id?: number
             first_name?: string
             last_name?: string
             username?: string
           }
+        }
+        MainButton?: {
+          setText: (text: string) => void
+          show: () => void
+          hide: () => void
+          enable: () => void
+          disable: () => void
+          onClick: (cb: () => void) => void
+          offClick: (cb: () => void) => void
         }
       }
     }
@@ -63,6 +74,7 @@ const SERVICE_META: Record<ServiceKey, { title: string; description: string; pri
 
 function EstimateRow({ label, value }: { label: string; value: number }) {
   if (value <= 0) return null
+
   return (
     <div className="estimate-row">
       <span className="muted">{label}</span>
@@ -79,42 +91,70 @@ export default function App() {
   const [name, setName] = useState('')
   const [telegramContact, setTelegramContact] = useState('')
   const [comment, setComment] = useState('')
-  const [submitted, setSubmitted] = useState(false)
   const [activeImage, setActiveImage] = useState(0)
+  const [debugTelegram, setDebugTelegram] = useState('DEBUG: пока нет данных')
 
- useEffect(() => {
-  const app = window.Telegram?.WebApp
-  if (!app) return
+  useEffect(() => {
+    const app = window.Telegram?.WebApp
 
-  app.ready()
-  app.expand()
+    if (!app) {
+      setDebugTelegram('window.Telegram.WebApp НЕ найден')
+      return
+    }
 
-  let tgUser = app.initDataUnsafe?.user
+    app.ready()
+    app.expand()
 
-  if (!tgUser && app.initData) {
-    const params = new URLSearchParams(app.initData)
-    const userRaw = params.get('user')
+    let tgUser = app.initDataUnsafe?.user
 
-    if (userRaw) {
-      try {
-        tgUser = JSON.parse(decodeURIComponent(userRaw))
-      } catch (error) {
-        console.log('Failed to parse Telegram user:', error)
+    if (!tgUser && app.initData) {
+      const params = new URLSearchParams(app.initData)
+      const userRaw = params.get('user')
+
+      if (userRaw) {
+        try {
+          tgUser = JSON.parse(decodeURIComponent(userRaw))
+        } catch (error) {
+          console.log('Failed to parse Telegram user:', error)
+        }
       }
     }
-  }
 
-  console.log('Telegram user:', tgUser)
+    setDebugTelegram(
+      JSON.stringify(
+        {
+          hasTelegram: Boolean(window.Telegram),
+          hasWebApp: Boolean(app),
+          initDataLength: app.initData?.length || 0,
+          initDataUnsafe: app.initDataUnsafe,
+          user: tgUser,
+        },
+        null,
+        2,
+      ),
+    )
 
-  if (tgUser?.first_name) {
-    const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ')
-    setName(fullName)
-  }
+    if (tgUser?.first_name) {
+      const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ')
+      setName(fullName)
+    }
 
-  if (tgUser?.username) {
-    setTelegramContact(`@${tgUser.username}`)
-  }
-}, [])
+    if (tgUser?.username) {
+      setTelegramContact(`@${tgUser.username}`)
+    }
+  }, [])
+
+  useEffect(() => {
+    setSelectedSlots([])
+  }, [shootDate])
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveImage((prev) => (prev + 1) % STUDIO_IMAGES.length)
+    }, 2800)
+
+    return () => window.clearInterval(timer)
+  }, [])
 
   const selectedHours = useMemo(() => selectedSlots.length, [selectedSlots])
 
@@ -132,11 +172,14 @@ export default function App() {
     if (service === 'shorts') {
       return { base: 0, editing: 0, shorts: SHORTS_PACKAGE_PRICE, host: 0, total: SHORTS_PACKAGE_PRICE }
     }
+
     if (service === 'host') {
       return { base: 0, editing: 0, shorts: 0, host: HOST_PACKAGE_PRICE, total: HOST_PACKAGE_PRICE }
     }
+
     const base = STUDIO_PRICE_PER_HOUR * selectedHours
     const editing = needEditing ? EDITING_PRICE_PER_SOURCE_HOUR * selectedHours : 0
+
     return { base, editing, shorts: 0, host: 0, total: base + editing }
   }, [service, needEditing, selectedHours])
 
@@ -166,15 +209,36 @@ export default function App() {
   }
 
   const handleSubmit = () => {
+    if (!canSubmit) return
+
     const app = window.Telegram?.WebApp
-    if (app?.sendData) {
-      app.sendData(JSON.stringify(payload))
-    } else {
-      console.log('Telegram WebApp not found. Payload:', payload)
-      alert('Демо-режим: данные выведены в консоль браузера.')
-    }
-    setSubmitted(true)
+    if (!app) return
+
+    app.sendData(JSON.stringify(payload))
+    app.close?.()
   }
+
+  useEffect(() => {
+    const app = window.Telegram?.WebApp
+    const mainButton = app?.MainButton
+
+    if (!mainButton) return
+
+    mainButton.setText('Забронировать время')
+    mainButton.show()
+
+    if (canSubmit) {
+      mainButton.enable()
+    } else {
+      mainButton.disable()
+    }
+
+    mainButton.onClick(handleSubmit)
+
+    return () => {
+      mainButton.offClick(handleSubmit)
+    }
+  }, [canSubmit, payload])
 
   return (
     <div className="app-shell">
@@ -208,6 +272,7 @@ export default function App() {
               <p className="gallery-overlay-text">Несколько ракурсов студии до бронирования.</p>
             </div>
           </div>
+
           <div className="dots">
             {STUDIO_IMAGES.map((_, index) => (
               <button
@@ -224,10 +289,22 @@ export default function App() {
         <div className="card">
           <h2 className="card-title">Что входит в съёмку</h2>
           <div className="features">
-            <div className="feature"><div className="feature-icon">📷</div><div className="feature-label">3 камеры Sony 4K</div></div>
-            <div className="feature"><div className="feature-icon">🎙️</div><div className="feature-label">Микрофоны Shure</div></div>
-            <div className="feature"><div className="feature-icon">💡</div><div className="feature-label">Студийный свет</div></div>
-            <div className="feature"><div className="feature-icon">🛠️</div><div className="feature-label">Помощь на площадке</div></div>
+            <div className="feature">
+              <div className="feature-icon">📷</div>
+              <div className="feature-label">3 камеры Sony 4K</div>
+            </div>
+            <div className="feature">
+              <div className="feature-icon">🎙️</div>
+              <div className="feature-label">Микрофоны Shure</div>
+            </div>
+            <div className="feature">
+              <div className="feature-icon">💡</div>
+              <div className="feature-label">Студийный свет</div>
+            </div>
+            <div className="feature">
+              <div className="feature-icon">🛠️</div>
+              <div className="feature-label">Помощь на площадке</div>
+            </div>
           </div>
         </div>
 
@@ -237,6 +314,7 @@ export default function App() {
             {(Object.keys(SERVICE_META) as ServiceKey[]).map((key) => {
               const item = SERVICE_META[key]
               const isActive = service === key
+
               return (
                 <button
                   key={key}
@@ -258,6 +336,7 @@ export default function App() {
 
         <div className="card">
           <h2 className="card-title">2. Параметры заявки</h2>
+
           <div className="field">
             <label className="label">Укажите желаемую дату</label>
             <div className="help">После выбора даты Вы сможете выбрать удобное время записи.</div>
@@ -280,7 +359,10 @@ export default function App() {
           {shootDate && (
             <div style={{ marginTop: 16 }}>
               <div className="label">Выберите удобные часы записи</div>
-              <div className="help" style={{ marginTop: 6 }}>График работы студии: с 10:00 до 22:00. Можно выбрать один или несколько часов.</div>
+              <div className="help" style={{ marginTop: 6 }}>
+                График работы студии: с 10:00 до 22:00. Можно выбрать один или несколько часов.
+              </div>
+
               <div className="slot-grid" style={{ marginTop: 12 }}>
                 {availableSlots.map((slot) => (
                   <button
@@ -318,41 +400,49 @@ export default function App() {
               <span>Итого</span>
               <span>{estimate.total.toLocaleString('ru-RU')} ₽</span>
             </div>
-            <div className="help">Расчёт является предварительным. Итоговая стоимость может изменяться в зависимости от задач и дополнительных опций.</div>
+            <div className="help">
+              Расчёт является предварительным. Итоговая стоимость может изменяться в зависимости от задач и дополнительных опций.
+            </div>
           </div>
         </div>
 
         <div className="card">
           <h2 className="card-title">4. Отправить заявку в студию</h2>
+
           <div className="field">
             <label className="label">Ваше имя</label>
             <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Как к Вам обращаться" />
           </div>
+
           <div className="field" style={{ marginTop: 14 }}>
             <label className="label">Ваш Telegram для связи</label>
-            <input className="input" value={telegramContact} onChange={(e) => setTelegramContact(e.target.value)} placeholder="@username или номер" />
-          </div>
-          <div className="field" style={{ marginTop: 14 }}>
-            <label className="label">Комментарий к заявке</label>
-            <textarea className="textarea" value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Например: требуется запись интервью, важен монтаж" />
-          </div>
-          <div style={{ marginTop: 16 }}>
-            <button className="primary-btn" onClick={handleSubmit} disabled={!canSubmit}>Забронировать время</button>
-            <div className="center-note">Мы свяжемся с Вами для подтверждения.</div>
+            <input
+              className="input"
+              value={telegramContact}
+              onChange={(e) => setTelegramContact(e.target.value)}
+              placeholder="@username или номер"
+            />
           </div>
 
-          {submitted && (
-            <div style={{ display: 'grid', gap: 12, marginTop: 16 }}>
-              <div className="success">
-                <p className="success-title">Заявка успешно сформирована</p>
-                <p className="success-text">В Telegram Mini App данные будут отправлены боту. Ниже показан пример передаваемых данных.</p>
-              </div>
-              <div className="payload">
-                <p className="payload-title">Payload preview</p>
-                <pre>{JSON.stringify(payload, null, 2)}</pre>
-              </div>
-            </div>
-          )}
+          <div className="field" style={{ marginTop: 14 }}>
+            <label className="label">Комментарий к заявке</label>
+            <textarea
+              className="textarea"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Например: требуется запись интервью, важен монтаж"
+            />
+          </div>
+
+          <div style={{ marginTop: 16 }}>
+            <div className="center-note">Имя и Telegram подтягиваются автоматически, если они доступны в профиле.</div>
+            <div className="center-note">Кнопка отправки доступна внизу интерфейса Telegram.</div>
+          </div>
+
+          <div style={{ marginTop: 16, padding: 12, border: '1px solid #444', borderRadius: 12 }}>
+            <div style={{ fontWeight: 700, marginBottom: 8 }}>DEBUG TELEGRAM</div>
+            <pre style={{ fontSize: 11, whiteSpace: 'pre-wrap', margin: 0 }}>{debugTelegram}</pre>
+          </div>
         </div>
 
         <div className="card">
@@ -363,6 +453,7 @@ export default function App() {
               <p className="address-title">{STUDIO_ADDRESS}</p>
             </div>
           </div>
+
           <div className="address-box" style={{ marginTop: 12 }}>
             <div>🚗</div>
             <div>

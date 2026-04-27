@@ -141,7 +141,7 @@ export default function App() {
 
     if (tgUser?.username) {
       setTelegramContact(`@${tgUser.username}`)
-    }
+    
   }, [])
 
   useEffect(() => {

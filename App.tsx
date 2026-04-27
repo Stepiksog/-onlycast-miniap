@@ -200,8 +200,7 @@ export default function App() {
     [service, selectedHours, needEditing, shootDate, selectedSlots, estimate, name, telegramContact, comment],
   )
 
-  const canSubmit = Boolean(name.trim() && telegramContact.trim() && shootDate.trim() && selectedSlots.length > 0)
-
+  const canSubmit = Boolean(shootDate.trim() && selectedSlots.length > 0)
   const toggleSlot = (slot: string) => {
     setSelectedSlots((prev) =>
       prev.includes(slot) ? prev.filter((item) => item !== slot) : [...prev, slot].sort(),

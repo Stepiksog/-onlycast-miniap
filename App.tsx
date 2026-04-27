@@ -246,7 +246,7 @@ export default function App() {
         <div className="hero-top">
           <div>
             <div className="eyebrow">Telegram Mini App</div>
-            <h1 className="title">OnlyCast</h1>
+            <h1 className="title">OnlyCast TEST 999</h1>
           </div>
           <div className="badge">Запись за 1 минуту</div>
         </div>

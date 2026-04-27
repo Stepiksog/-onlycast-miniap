@@ -94,9 +94,12 @@ export default function App() {
   const [activeImage, setActiveImage] = useState(0)
   const [debugTelegram, setDebugTelegram] = useState('DEBUG: пока нет данных')
 
-  useEffect(() => {
   const app = window.Telegram?.WebApp
-  if (!app) return
+
+if (!app) {
+  setDebugTelegram('window.Telegram.WebApp НЕ найден')
+  return
+}
 
   app.ready()
   app.expand()

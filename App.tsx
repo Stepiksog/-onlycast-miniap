@@ -93,57 +93,56 @@ export default function App() {
   const [comment, setComment] = useState('')
   const [activeImage, setActiveImage] = useState(0)
   const [debugTelegram, setDebugTelegram] = useState('DEBUG: пока нет данных')
-useEffect(() => {
-  const app = window.Telegram?.WebApp
 
-  if (!app) {
-    setDebugTelegram('window.Telegram.WebApp НЕ найден')
-    return
-  }
+  useEffect(() => {
+    const app = window.Telegram?.WebApp
 
-  app.ready()
-  app.expand()
+    if (!app) {
+      setDebugTelegram('window.Telegram.WebApp НЕ найден')
+      return
+    }
 
-  let tgUser = app.initDataUnsafe?.user
+    app.ready()
+    app.expand()
 
-  if (!tgUser && app.initData) {
-    const params = new URLSearchParams(app.initData)
-    const userRaw = params.get('user')
+    let tgUser = app.initDataUnsafe?.user
 
-    if (userRaw) {
-      try {
-        tgUser = JSON.parse(decodeURIComponent(userRaw))
-      } catch (error) {
-        console.log('Failed to parse Telegram user:', error)
+    if (!tgUser && app.initData) {
+      const params = new URLSearchParams(app.initData)
+      const userRaw = params.get('user')
+
+      if (userRaw) {
+        try {
+          tgUser = JSON.parse(decodeURIComponent(userRaw))
+        } catch (error) {
+          console.log('Failed to parse Telegram user:', error)
+        }
       }
     }
-  }
 
-  console.log('Telegram user:', tgUser)
+    setDebugTelegram(
+      JSON.stringify(
+        {
+          hasTelegram: Boolean(window.Telegram),
+          hasWebApp: Boolean(app),
+          initDataLength: app.initData?.length || 0,
+          initDataUnsafe: app.initDataUnsafe,
+          user: tgUser,
+        },
+        null,
+        2,
+      ),
+    )
 
-  setDebugTelegram(
-    JSON.stringify(
-      {
-        hasTelegram: Boolean(window.Telegram),
-        hasWebApp: Boolean(app),
-        initDataLength: app.initData?.length || 0,
-        initDataUnsafe: app.initDataUnsafe,
-        user: tgUser,
-      },
-      null,
-      2,
-    ),
-  )
+    if (tgUser?.first_name) {
+      const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ')
+      setName(fullName)
+    }
 
-  if (tgUser?.first_name) {
-    const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ')
-    setName(fullName)
-  }
-
-  if (tgUser?.username) {
-    setTelegramContact(`@${tgUser.username}`)
-  }
-}, [])
+    if (tgUser?.username) {
+      setTelegramContact(`@${tgUser.username}`)
+    }
+  }, [])
 
   useEffect(() => {
     setSelectedSlots([])
@@ -247,7 +246,7 @@ useEffect(() => {
         <div className="hero-top">
           <div>
             <div className="eyebrow">Telegram Mini App</div>
-            <h1 className="title">OnlyCast TEST 999</h1>
+            <h1 className="title">OnlyCast</h1>
           </div>
           <div className="badge">Запись за 1 минуту</div>
         </div>
@@ -397,10 +396,12 @@ useEffect(() => {
             <EstimateRow label="Монтаж" value={estimate.editing} />
             <EstimateRow label="Пакет коротких видео" value={estimate.shorts} />
             <EstimateRow label="Ведущий / продюсер" value={estimate.host} />
+
             <div className="estimate-total">
               <span>Итого</span>
               <span>{estimate.total.toLocaleString('ru-RU')} ₽</span>
             </div>
+
             <div className="help">
               Расчёт является предварительным. Итоговая стоимость может изменяться в зависимости от задач и дополнительных опций.
             </div>
@@ -412,7 +413,12 @@ useEffect(() => {
 
           <div className="field">
             <label className="label">Ваше имя</label>
-            <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Как к Вам обращаться" />
+            <input
+              className="input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Как к Вам обращаться"
+            />
           </div>
 
           <div className="field" style={{ marginTop: 14 }}>

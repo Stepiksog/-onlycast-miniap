@@ -94,54 +94,55 @@ export default function App() {
   const [activeImage, setActiveImage] = useState(0)
   const [debugTelegram, setDebugTelegram] = useState('DEBUG: пока нет данных')
 
-  const app = window.Telegram?.WebApp
+  useEffect(() => {
+    const app = window.Telegram?.WebApp
 
-if (!app) {
-  setDebugTelegram('window.Telegram.WebApp НЕ найден')
-  return
-}
+    if (!app) {
+      setDebugTelegram('window.Telegram.WebApp НЕ найден')
+      return
+    }
 
-  app.ready()
-  app.expand()
+    app.ready()
+    app.expand()
 
-  let tgUser = app.initDataUnsafe?.user
+    let tgUser = app.initDataUnsafe?.user
 
-  if (!tgUser && app.initData) {
-    const params = new URLSearchParams(app.initData)
-    const userRaw = params.get('user')
+    if (!tgUser && app.initData) {
+      const params = new URLSearchParams(app.initData)
+      const userRaw = params.get('user')
 
-    if (userRaw) {
-      try {
-        tgUser = JSON.parse(decodeURIComponent(userRaw))
-      } catch (error) {
-        console.log('Failed to parse Telegram user:', error)
+      if (userRaw) {
+        try {
+          tgUser = JSON.parse(decodeURIComponent(userRaw))
+        } catch (error) {
+          console.log('Failed to parse Telegram user:', error)
+        }
       }
     }
-  }
 
-  console.log('Telegram user:', tgUser)
-setDebugTelegram(
-  JSON.stringify(
-    {
-      hasTelegram: Boolean(window.Telegram),
-      hasWebApp: Boolean(app),
-      initDataLength: app.initData?.length || 0,
-      initDataUnsafe: app.initDataUnsafe,
-      user: tgUser,
-    },
-    null,
-    2,
-  ),
-)
-  if (tgUser?.first_name) {
-    const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ')
-    setName(fullName)
-  }
+    setDebugTelegram(
+      JSON.stringify(
+        {
+          hasTelegram: Boolean(window.Telegram),
+          hasWebApp: Boolean(app),
+          initDataLength: app.initData?.length || 0,
+          initDataUnsafe: app.initDataUnsafe,
+          user: tgUser,
+        },
+        null,
+        2,
+      ),
+    )
 
-  if (tgUser?.username) {
-    setTelegramContact(`@${tgUser.username}`)
-  }
-}, [])
+    if (tgUser?.first_name) {
+      const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ')
+      setName(fullName)
+    }
+
+    if (tgUser?.username) {
+      setTelegramContact(`@${tgUser.username}`)
+    }
+  }, [])
 
   useEffect(() => {
     setSelectedSlots([])
@@ -395,10 +396,12 @@ setDebugTelegram(
             <EstimateRow label="Монтаж" value={estimate.editing} />
             <EstimateRow label="Пакет коротких видео" value={estimate.shorts} />
             <EstimateRow label="Ведущий / продюсер" value={estimate.host} />
+
             <div className="estimate-total">
               <span>Итого</span>
               <span>{estimate.total.toLocaleString('ru-RU')} ₽</span>
             </div>
+
             <div className="help">
               Расчёт является предварительным. Итоговая стоимость может изменяться в зависимости от задач и дополнительных опций.
             </div>
@@ -410,7 +413,12 @@ setDebugTelegram(
 
           <div className="field">
             <label className="label">Ваше имя</label>
-            <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Как к Вам обращаться" />
+            <input
+              className="input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Как к Вам обращаться"
+            />
           </div>
 
           <div className="field" style={{ marginTop: 14 }}>
@@ -436,12 +444,11 @@ setDebugTelegram(
           <div style={{ marginTop: 16 }}>
             <div className="center-note">Имя и Telegram подтягиваются автоматически, если они доступны в профиле.</div>
             <div className="center-note">Кнопка отправки доступна внизу интерфейса Telegram.</div>
-            <div style={{ marginTop: 16, padding: 12, border: '1px solid #444', borderRadius: 12 }}>
-  <div style={{ fontWeight: 700, marginBottom: 8 }}>DEBUG TELEGRAM</div>
-  <pre style={{ fontSize: 11, whiteSpace: 'pre-wrap', margin: 0 }}>
-    {debugTelegram}
-  </pre>
-</div>
+          </div>
+
+          <div style={{ marginTop: 16, padding: 12, border: '1px solid #444', borderRadius: 12 }}>
+            <div style={{ fontWeight: 700, marginBottom: 8 }}>DEBUG TELEGRAM</div>
+            <pre style={{ fontSize: 11, whiteSpace: 'pre-wrap', margin: 0 }}>{debugTelegram}</pre>
           </div>
         </div>
 

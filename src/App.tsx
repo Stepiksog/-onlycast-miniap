@@ -92,6 +92,7 @@ export default function App() {
   const [telegramContact, setTelegramContact] = useState('')
   const [comment, setComment] = useState('')
   const [activeImage, setActiveImage] = useState(0)
+  const [debugTelegram, setDebugTelegram] = useState('DEBUG: пока нет данных')
 
   useEffect(() => {
   const app = window.Telegram?.WebApp
@@ -116,7 +117,19 @@ export default function App() {
   }
 
   console.log('Telegram user:', tgUser)
-
+setDebugTelegram(
+  JSON.stringify(
+    {
+      hasTelegram: Boolean(window.Telegram),
+      hasWebApp: Boolean(app),
+      initDataLength: app.initData?.length || 0,
+      initDataUnsafe: app.initDataUnsafe,
+      user: tgUser,
+    },
+    null,
+    2,
+  ),
+)
   if (tgUser?.first_name) {
     const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ')
     setName(fullName)
@@ -420,6 +433,12 @@ export default function App() {
           <div style={{ marginTop: 16 }}>
             <div className="center-note">Имя и Telegram подтягиваются автоматически, если они доступны в профиле.</div>
             <div className="center-note">Кнопка отправки доступна внизу интерфейса Telegram.</div>
+            <div style={{ marginTop: 16, padding: 12, border: '1px solid #444', borderRadius: 12 }}>
+  <div style={{ fontWeight: 700, marginBottom: 8 }}>DEBUG TELEGRAM</div>
+  <pre style={{ fontSize: 11, whiteSpace: 'pre-wrap', margin: 0 }}>
+    {debugTelegram}
+  </pre>
+</div>
           </div>
         </div>
 

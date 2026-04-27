@@ -93,56 +93,57 @@ export default function App() {
   const [comment, setComment] = useState('')
   const [activeImage, setActiveImage] = useState(0)
   const [debugTelegram, setDebugTelegram] = useState('DEBUG: пока нет данных')
+useEffect(() => {
+  const app = window.Telegram?.WebApp
 
-  useEffect(() => {
-    const app = window.Telegram?.WebApp
+  if (!app) {
+    setDebugTelegram('window.Telegram.WebApp НЕ найден')
+    return
+  }
 
-    if (!app) {
-      setDebugTelegram('window.Telegram.WebApp НЕ найден')
-      return
-    }
+  app.ready()
+  app.expand()
 
-    app.ready()
-    app.expand()
+  let tgUser = app.initDataUnsafe?.user
 
-    let tgUser = app.initDataUnsafe?.user
+  if (!tgUser && app.initData) {
+    const params = new URLSearchParams(app.initData)
+    const userRaw = params.get('user')
 
-    if (!tgUser && app.initData) {
-      const params = new URLSearchParams(app.initData)
-      const userRaw = params.get('user')
-
-      if (userRaw) {
-        try {
-          tgUser = JSON.parse(decodeURIComponent(userRaw))
-        } catch (error) {
-          console.log('Failed to parse Telegram user:', error)
-        }
+    if (userRaw) {
+      try {
+        tgUser = JSON.parse(decodeURIComponent(userRaw))
+      } catch (error) {
+        console.log('Failed to parse Telegram user:', error)
       }
     }
+  }
 
-    setDebugTelegram(
-      JSON.stringify(
-        {
-          hasTelegram: Boolean(window.Telegram),
-          hasWebApp: Boolean(app),
-          initDataLength: app.initData?.length || 0,
-          initDataUnsafe: app.initDataUnsafe,
-          user: tgUser,
-        },
-        null,
-        2,
-      ),
-    )
+  console.log('Telegram user:', tgUser)
 
-    if (tgUser?.first_name) {
-      const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ')
-      setName(fullName)
-    }
+  setDebugTelegram(
+    JSON.stringify(
+      {
+        hasTelegram: Boolean(window.Telegram),
+        hasWebApp: Boolean(app),
+        initDataLength: app.initData?.length || 0,
+        initDataUnsafe: app.initDataUnsafe,
+        user: tgUser,
+      },
+      null,
+      2,
+    ),
+  )
 
-    if (tgUser?.username) {
-      setTelegramContact(`@${tgUser.username}`)
-    }
-  }, [])
+  if (tgUser?.first_name) {
+    const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ')
+    setName(fullName)
+  }
+
+  if (tgUser?.username) {
+    setTelegramContact(`@${tgUser.username}`)
+  }
+}, [])
 
   useEffect(() => {
     setSelectedSlots([])

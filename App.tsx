@@ -48,9 +48,9 @@ const HOST_PACKAGE_PRICE = 30000
 const STUDIO_ADDRESS = 'Москва, улица Правды, 8к13'
 
 const STUDIO_IMAGES = [
-  '/studio/photo1.jpg',
-  '/studio/photo2.jpg',
-  '/studio/photo3.jpg',
+  '/studio/photo1.jpg?v=2',
+  '/studio/photo2.jpg?v=2',
+  '/studio/photo3.jpg?v=2',
 ]
 
 const SERVICE_META: Record<ServiceKey, { title: string; description: string; priceText: string }> = {

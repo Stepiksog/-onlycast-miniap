@@ -48,9 +48,9 @@ const HOST_PACKAGE_PRICE = 30000
 const STUDIO_ADDRESS = 'Москва, улица Правды, 8к13'
 
 const STUDIO_IMAGES = [
-  '/studio/photo1.jpg?v=3',
-  '/studio/photo2.jpg?v=3',
-  '/studio/photo3.jpg?v=3',
+  '/studio/photo1.jpg?v=5',
+  '/studio/photo2.jpg?v=5',
+  '/studio/photo3.jpg?v=5',
 ]
 
 const SERVICE_META: Record<ServiceKey, { title: string; description: string; priceText: string }> = {
@@ -443,7 +443,7 @@ export default function App() {
               className="input"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Можно не заполнять — бот определит имя автоматически"
+              placeholder="Ваше имя"
             />
           </div>
 
@@ -453,7 +453,7 @@ export default function App() {
               className="input"
               value={telegramContact}
               onChange={(e) => setTelegramContact(e.target.value)}
-              placeholder="Можно не заполнять — бот определит username автоматически"
+              placeholder="@username или номер"
             />
           </div>
 
@@ -468,9 +468,6 @@ export default function App() {
           </div>
 
           <div style={{ marginTop: 16 }}>
-            <div className="center-note">
-              Имя и Telegram можно не заполнять — бот возьмёт данные из Telegram-профиля.
-            </div>
             <div className="center-note">Кнопка отправки доступна внизу интерфейса Telegram.</div>
           </div>
         </div>

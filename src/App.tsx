@@ -48,10 +48,9 @@ const HOST_PACKAGE_PRICE = 30000
 const STUDIO_ADDRESS = 'Москва, улица Правды, 8к13'
 
 const STUDIO_IMAGES = [
-  'https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1400&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1497366412874-3415097a27e7?q=80&w=1400&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1400&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1400&auto=format&fit=crop',
+  '/studio/photo1.jpg?v=3',
+  '/studio/photo2.jpg?v=3',
+  '/studio/photo3.jpg?v=3',
 ]
 
 const SERVICE_META: Record<ServiceKey, { title: string; description: string; priceText: string }> = {
@@ -170,17 +169,35 @@ export default function App() {
 
   const estimate = useMemo<Estimate>(() => {
     if (service === 'shorts') {
-      return { base: 0, editing: 0, shorts: SHORTS_PACKAGE_PRICE, host: 0, total: SHORTS_PACKAGE_PRICE }
+      return {
+        base: 0,
+        editing: 0,
+        shorts: SHORTS_PACKAGE_PRICE,
+        host: 0,
+        total: SHORTS_PACKAGE_PRICE,
+      }
     }
 
     if (service === 'host') {
-      return { base: 0, editing: 0, shorts: 0, host: HOST_PACKAGE_PRICE, total: HOST_PACKAGE_PRICE }
+      return {
+        base: 0,
+        editing: 0,
+        shorts: 0,
+        host: HOST_PACKAGE_PRICE,
+        total: HOST_PACKAGE_PRICE,
+      }
     }
 
     const base = STUDIO_PRICE_PER_HOUR * selectedHours
     const editing = needEditing ? EDITING_PRICE_PER_SOURCE_HOUR * selectedHours : 0
 
-    return { base, editing, shorts: 0, host: 0, total: base + editing }
+    return {
+      base,
+      editing,
+      shorts: 0,
+      host: 0,
+      total: base + editing,
+    }
   }, [service, needEditing, selectedHours])
 
   const payload = useMemo(
@@ -193,14 +210,18 @@ export default function App() {
       shootDate,
       selectedSlots,
       estimate,
-      lead: { name, telegramContact, comment },
+      lead: {
+        name,
+        telegramContact,
+        comment,
+      },
       source: 'telegram_mini_app',
       createdAt: new Date().toISOString(),
     }),
     [service, selectedHours, needEditing, shootDate, selectedSlots, estimate, name, telegramContact, comment],
   )
 
-  const canSubmit = Boolean(name.trim() && telegramContact.trim() && shootDate.trim() && selectedSlots.length > 0)
+  const canSubmit = Boolean(shootDate.trim() && selectedSlots.length > 0)
 
   const toggleSlot = (slot: string) => {
     setSelectedSlots((prev) =>
@@ -250,6 +271,7 @@ export default function App() {
           </div>
           <div className="badge">Запись за 1 минуту</div>
         </div>
+
         <p className="hero-text">
           Выберите услугу, получите предварительную стоимость, выберите удобное время и
           забронируйте запись в студии.
@@ -267,6 +289,7 @@ export default function App() {
                 className={`gallery-slide ${index === activeImage ? 'active' : ''}`}
               />
             ))}
+
             <div className="gallery-overlay">
               <p className="gallery-overlay-title">Пространство студии</p>
               <p className="gallery-overlay-text">Несколько ракурсов студии до бронирования.</p>
@@ -288,19 +311,23 @@ export default function App() {
 
         <div className="card">
           <h2 className="card-title">Что входит в съёмку</h2>
+
           <div className="features">
             <div className="feature">
               <div className="feature-icon">📷</div>
               <div className="feature-label">3 камеры Sony 4K</div>
             </div>
+
             <div className="feature">
               <div className="feature-icon">🎙️</div>
               <div className="feature-label">Микрофоны Shure</div>
             </div>
+
             <div className="feature">
               <div className="feature-icon">💡</div>
               <div className="feature-label">Студийный свет</div>
             </div>
+
             <div className="feature">
               <div className="feature-icon">🛠️</div>
               <div className="feature-label">Помощь на площадке</div>
@@ -310,6 +337,7 @@ export default function App() {
 
         <div className="card">
           <h2 className="card-title">1. Выберите услугу</h2>
+
           <div className="service-list">
             {(Object.keys(SERVICE_META) as ServiceKey[]).map((key) => {
               const item = SERVICE_META[key]
@@ -326,6 +354,7 @@ export default function App() {
                     <p className="service-title">{item.title}</p>
                     {isActive && <span className="chosen-pill">Выбрано</span>}
                   </div>
+
                   <p className="service-desc">{item.description}</p>
                   <p className="service-price">{item.priceText}</p>
                 </button>
@@ -340,16 +369,29 @@ export default function App() {
           <div className="field">
             <label className="label">Укажите желаемую дату</label>
             <div className="help">После выбора даты Вы сможете выбрать удобное время записи.</div>
-            <input className="input" type="date" value={shootDate} onChange={(e) => setShootDate(e.target.value)} />
+
+            <input
+              className="input"
+              type="date"
+              value={shootDate}
+              onChange={(e) => setShootDate(e.target.value)}
+            />
           </div>
 
           {service === 'studio' && (
             <div className="checkbox-box" style={{ marginTop: 16 }}>
               <div className="checkbox-row">
-                <input type="checkbox" checked={needEditing} onChange={(e) => setNeedEditing(e.target.checked)} />
+                <input
+                  type="checkbox"
+                  checked={needEditing}
+                  onChange={(e) => setNeedEditing(e.target.checked)}
+                />
+
                 <div>
                   <div className="label">Добавить монтаж</div>
-                  <div className="help">Чистка звука, цветокоррекция, монтаж и подготовка файла для публикации.</div>
+                  <div className="help">
+                    Чистка звука, цветокоррекция, монтаж и подготовка файла для публикации.
+                  </div>
                   <div className="appeal">+10 000 ₽ за каждый выбранный час исходного материала</div>
                 </div>
               </div>
@@ -382,6 +424,7 @@ export default function App() {
                     <span className="muted">Вы выбрали</span>
                     <span>{selectedSlots.length} ч.</span>
                   </div>
+
                   <div>{selectedSlots.join(', ')}</div>
                 </div>
               )}
@@ -391,6 +434,7 @@ export default function App() {
 
         <div className="card">
           <h2 className="card-title">3. Предварительный расчёт стоимости</h2>
+
           <div className="estimate-list">
             <EstimateRow label="Съёмка в студии" value={estimate.base} />
             <EstimateRow label="Монтаж" value={estimate.editing} />
@@ -417,7 +461,7 @@ export default function App() {
               className="input"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Как к Вам обращаться"
+              placeholder="Можно не заполнять — бот определит имя автоматически"
             />
           </div>
 
@@ -427,7 +471,7 @@ export default function App() {
               className="input"
               value={telegramContact}
               onChange={(e) => setTelegramContact(e.target.value)}
-              placeholder="@username или номер"
+              placeholder="Можно не заполнять — бот определит username автоматически"
             />
           </div>
 
@@ -442,7 +486,9 @@ export default function App() {
           </div>
 
           <div style={{ marginTop: 16 }}>
-            <div className="center-note">Имя и Telegram подтягиваются автоматически, если они доступны в профиле.</div>
+            <div className="center-note">
+              Имя и Telegram можно не заполнять — бот возьмёт данные из Telegram-профиля.
+            </div>
             <div className="center-note">Кнопка отправки доступна внизу интерфейса Telegram.</div>
           </div>
 
@@ -454,6 +500,7 @@ export default function App() {
 
         <div className="card">
           <h2 className="card-title">5. Адрес студии</h2>
+
           <div className="address-box">
             <div>📍</div>
             <div>

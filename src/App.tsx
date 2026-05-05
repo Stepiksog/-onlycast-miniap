@@ -91,15 +91,11 @@ export default function App() {
   const [telegramContact, setTelegramContact] = useState('')
   const [comment, setComment] = useState('')
   const [activeImage, setActiveImage] = useState(0)
-  const [debugTelegram, setDebugTelegram] = useState('DEBUG: пока нет данных')
 
   useEffect(() => {
     const app = window.Telegram?.WebApp
 
-    if (!app) {
-      setDebugTelegram('window.Telegram.WebApp НЕ найден')
-      return
-    }
+    if (!app) return
 
     app.ready()
     app.expand()
@@ -118,20 +114,6 @@ export default function App() {
         }
       }
     }
-
-    setDebugTelegram(
-      JSON.stringify(
-        {
-          hasTelegram: Boolean(window.Telegram),
-          hasWebApp: Boolean(app),
-          initDataLength: app.initData?.length || 0,
-          initDataUnsafe: app.initDataUnsafe,
-          user: tgUser,
-        },
-        null,
-        2,
-      ),
-    )
 
     if (tgUser?.first_name) {
       const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ')
@@ -491,6 +473,7 @@ export default function App() {
             </div>
             <div className="center-note">Кнопка отправки доступна внизу интерфейса Telegram.</div>
           </div>
+        </div>
 
         <div className="card">
           <h2 className="card-title">5. Адрес студии</h2>

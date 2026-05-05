@@ -8,19 +8,9 @@ declare global {
         expand: () => void
         close?: () => void
         sendData: (data: string) => void
-        initData?: string
-        initDataUnsafe?: {
-          user?: {
-            id?: number
-            first_name?: string
-            last_name?: string
-            username?: string
-          }
-        }
         MainButton?: {
           setText: (text: string) => void
           show: () => void
-          hide: () => void
           enable: () => void
           disable: () => void
           onClick: (cb: () => void) => void
@@ -48,25 +38,25 @@ const HOST_PACKAGE_PRICE = 30000
 const STUDIO_ADDRESS = 'Москва, улица Правды, 8к13'
 
 const STUDIO_IMAGES = [
-  '/studio/photo1.jpg?v=6',
-  '/studio/photo2.jpg?v=6',
-  '/studio/photo3.jpg?v=6',
+  '/studio/photo1.jpg?v=9',
+  '/studio/photo2.jpg?v=9',
+  '/studio/photo3.jpg?v=9',
 ]
 
 const SERVICE_META: Record<ServiceKey, { title: string; description: string; priceText: string }> = {
   studio: {
     title: '🎥 Съёмка в студии',
-    description: 'Съёмка ведётся на 3 камеры Sony 4K, используется студийный свет и микрофоны Shure.',
+    description: 'Съёмка на 3 камеры Sony 4K, студийный свет и микрофоны Shure.',
     priceText: 'от 6 000 ₽ / час',
   },
   shorts: {
     title: '📱 Пакет коротких видео',
-    description: 'Подготовка 20–25 вертикальных видео для Reels / TikTok из вашего подкаста или интервью.',
+    description: 'Подготовка 20–25 вертикальных видео для Reels / TikTok.',
     priceText: 'от 25 000 ₽',
   },
   host: {
     title: '🎤 Ведущий / продюсер',
-    description: 'Подготовка, проведение интервью и раскрытие вашей экспертизы под контент-задачу.',
+    description: 'Подготовка, проведение интервью и раскрытие вашей экспертизы.',
     priceText: 'от 30 000 ₽',
   },
 }
@@ -89,10 +79,11 @@ export default function App() {
   const [selectedSlots, setSelectedSlots] = useState<string[]>([])
   const [comment, setComment] = useState('')
   const [activeImage, setActiveImage] = useState(0)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
 
   useEffect(() => {
     const app = window.Telegram?.WebApp
-
     if (!app) return
 
     app.ready()
@@ -184,25 +175,32 @@ export default function App() {
   }
 
   const handleSubmit = () => {
-    if (!canSubmit) return
+    if (!canSubmit || isSubmitting || isSubmitted) return
 
     const app = window.Telegram?.WebApp
     if (!app) return
 
-    app.sendData(JSON.stringify(payload))
-    app.close?.()
+    setIsSubmitting(true)
+
+    setTimeout(() => {
+      app.sendData(JSON.stringify(payload))
+      setIsSubmitting(false)
+      setIsSubmitted(true)
+
+      setTimeout(() => {
+        app.close?.()
+      }, 1600)
+    }, 700)
   }
 
   useEffect(() => {
-    const app = window.Telegram?.WebApp
-    const mainButton = app?.MainButton
-
+    const mainButton = window.Telegram?.WebApp?.MainButton
     if (!mainButton) return
 
     mainButton.setText('Забронировать время')
     mainButton.show()
 
-    if (canSubmit) {
+    if (canSubmit && !isSubmitting && !isSubmitted) {
       mainButton.enable()
     } else {
       mainButton.disable()
@@ -213,10 +211,32 @@ export default function App() {
     return () => {
       mainButton.offClick(handleSubmit)
     }
-  }, [canSubmit, payload])
+  }, [canSubmit, payload, isSubmitting, isSubmitted])
+
+  if (isSubmitting || isSubmitted) {
+    return (
+      <div className="app-shell animated-bg success-shell">
+        <div className="success-card">
+          {!isSubmitted ? (
+            <>
+              <div className="loader" />
+              <h1 className="success-title">Отправляем заявку</h1>
+              <p className="success-text">Передаём данные в студию OnlyCast.</p>
+            </>
+          ) : (
+            <>
+              <div className="success-icon">✅</div>
+              <h1 className="success-title">Заявка отправлена</h1>
+              <p className="success-text">Мы скоро свяжемся с вами в Telegram.</p>
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="app-shell">
+    <div className="app-shell animated-bg">
       <div className="hero">
         <div className="hero-top">
           <div>

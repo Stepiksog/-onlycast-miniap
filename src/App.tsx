@@ -189,7 +189,7 @@ export default function App() {
 
       setTimeout(() => {
         app.close?.()
-      }, 1600)
+      }, 4000)
     }, 700)
   }
 

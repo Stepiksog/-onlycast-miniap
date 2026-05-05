@@ -492,12 +492,6 @@ export default function App() {
             <div className="center-note">Кнопка отправки доступна внизу интерфейса Telegram.</div>
           </div>
 
-          <div style={{ marginTop: 16, padding: 12, border: '1px solid #444', borderRadius: 12 }}>
-            <div style={{ fontWeight: 700, marginBottom: 8 }}>DEBUG TELEGRAM</div>
-            <pre style={{ fontSize: 11, whiteSpace: 'pre-wrap', margin: 0 }}>{debugTelegram}</pre>
-          </div>
-        </div>
-
         <div className="card">
           <h2 className="card-title">5. Адрес студии</h2>
 

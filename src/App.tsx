@@ -48,9 +48,9 @@ const HOST_PACKAGE_PRICE = 30000
 const STUDIO_ADDRESS = 'Москва, улица Правды, 8к13'
 
 const STUDIO_IMAGES = [
-  '/studio/photo1.jpg?v=5',
-  '/studio/photo2.jpg?v=5',
-  '/studio/photo3.jpg?v=5',
+  '/studio/photo1.jpg?v=6',
+  '/studio/photo2.jpg?v=6',
+  '/studio/photo3.jpg?v=6',
 ]
 
 const SERVICE_META: Record<ServiceKey, { title: string; description: string; priceText: string }> = {
@@ -87,8 +87,6 @@ export default function App() {
   const [needEditing, setNeedEditing] = useState(false)
   const [shootDate, setShootDate] = useState('')
   const [selectedSlots, setSelectedSlots] = useState<string[]>([])
-  const [name, setName] = useState('')
-  const [telegramContact, setTelegramContact] = useState('')
   const [comment, setComment] = useState('')
   const [activeImage, setActiveImage] = useState(0)
 
@@ -99,30 +97,6 @@ export default function App() {
 
     app.ready()
     app.expand()
-
-    let tgUser = app.initDataUnsafe?.user
-
-    if (!tgUser && app.initData) {
-      const params = new URLSearchParams(app.initData)
-      const userRaw = params.get('user')
-
-      if (userRaw) {
-        try {
-          tgUser = JSON.parse(decodeURIComponent(userRaw))
-        } catch (error) {
-          console.log('Failed to parse Telegram user:', error)
-        }
-      }
-    }
-
-    if (tgUser?.first_name) {
-      const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ')
-      setName(fullName)
-    }
-
-    if (tgUser?.username) {
-      setTelegramContact(`@${tgUser.username}`)
-    }
   }, [])
 
   useEffect(() => {
@@ -193,14 +167,12 @@ export default function App() {
       selectedSlots,
       estimate,
       lead: {
-        name,
-        telegramContact,
         comment,
       },
       source: 'telegram_mini_app',
       createdAt: new Date().toISOString(),
     }),
-    [service, selectedHours, needEditing, shootDate, selectedSlots, estimate, name, telegramContact, comment],
+    [service, selectedHours, needEditing, shootDate, selectedSlots, estimate, comment],
   )
 
   const canSubmit = Boolean(shootDate.trim() && selectedSlots.length > 0)
@@ -435,30 +407,10 @@ export default function App() {
         </div>
 
         <div className="card">
-          <h2 className="card-title">4. Отправить заявку в студию</h2>
+          <h2 className="card-title">4. Комментарий к заявке</h2>
 
           <div className="field">
-            <label className="label">Ваше имя</label>
-            <input
-              className="input"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ваше имя"
-            />
-          </div>
-
-          <div className="field" style={{ marginTop: 14 }}>
-            <label className="label">Ваш Telegram для связи</label>
-            <input
-              className="input"
-              value={telegramContact}
-              onChange={(e) => setTelegramContact(e.target.value)}
-              placeholder="@username или номер"
-            />
-          </div>
-
-          <div className="field" style={{ marginTop: 14 }}>
-            <label className="label">Комментарий к заявке</label>
+            <label className="label">Комментарий</label>
             <textarea
               className="textarea"
               value={comment}
@@ -468,7 +420,9 @@ export default function App() {
           </div>
 
           <div style={{ marginTop: 16 }}>
-            <div className="center-note">Кнопка отправки доступна внизу интерфейса Telegram.</div>
+            <div className="center-note">
+              После выбора даты и времени нажмите «Забронировать время» внизу экрана.
+            </div>
           </div>
         </div>
 

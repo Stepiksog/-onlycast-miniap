@@ -66,10 +66,12 @@ button {
     background-position: 0% 50%;
     transform: scale(1);
   }
+
   50% {
     background-position: 100% 50%;
     transform: scale(1.09);
   }
+
   100% {
     background-position: 0% 50%;
     transform: scale(1);
@@ -171,26 +173,23 @@ button {
   transform: scale(1);
 }
 
-.gallery-overlay {
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: 14px;
-  padding: 12px;
-  border-radius: 16px;
-  background: rgba(0, 0, 0, 0.46);
-  backdrop-filter: blur(12px);
+.gallery-info {
+  margin-top: 16px;
 }
 
-.gallery-overlay-title {
+.gallery-info-title {
   margin: 0;
+  font-size: 20px;
   font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #ffffff;
 }
 
-.gallery-overlay-text {
-  margin: 4px 0 0;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.72);
+.gallery-info-text {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.66);
 }
 
 .dots {

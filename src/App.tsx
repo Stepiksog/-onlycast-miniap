@@ -38,9 +38,9 @@ const HOST_PACKAGE_PRICE = 30000
 const STUDIO_ADDRESS = 'Москва, улица Правды, 8к13'
 
 const STUDIO_IMAGES = [
-  '/studio/photo1.jpg?v=9',
-  '/studio/photo2.jpg?v=9',
-  '/studio/photo3.jpg?v=9',
+  '/studio/photo1.jpg?v=10',
+  '/studio/photo2.jpg?v=10',
+  '/studio/photo3.jpg?v=10',
 ]
 
 const SERVICE_META: Record<ServiceKey, { title: string; description: string; priceText: string }> = {
@@ -189,8 +189,8 @@ export default function App() {
 
       setTimeout(() => {
         app.close?.()
-      }, 4000)
-    }, 700)
+      }, 3000)
+    }, 900)
   }
 
   useEffect(() => {
@@ -263,11 +263,11 @@ export default function App() {
                 className={`gallery-slide ${index === activeImage ? 'active' : ''}`}
               />
             ))}
+          </div>
 
-            <div className="gallery-overlay">
-              <p className="gallery-overlay-title">Пространство студии</p>
-              <p className="gallery-overlay-text">Несколько ракурсов студии до бронирования.</p>
-            </div>
+          <div className="gallery-info">
+            <p className="gallery-info-title">Пространство студии</p>
+            <p className="gallery-info-text">Несколько ракурсов студии до бронирования.</p>
           </div>
 
           <div className="dots">

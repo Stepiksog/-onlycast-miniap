@@ -38,25 +38,25 @@ const HOST_PACKAGE_PRICE = 30000
 const STUDIO_ADDRESS = 'Москва, улица Правды, 8к13'
 
 const STUDIO_IMAGES = [
-  '/studio/photo1.jpg?v=10',
-  '/studio/photo2.jpg?v=10',
-  '/studio/photo3.jpg?v=10',
+  '/studio/photo1.jpg?v=11',
+  '/studio/photo2.jpg?v=11',
+  '/studio/photo3.jpg?v=11',
 ]
 
 const SERVICE_META: Record<ServiceKey, { title: string; description: string; priceText: string }> = {
   studio: {
     title: '🎥 Съёмка в студии',
-    description: 'Съёмка на 3 камеры Sony 4K, студийный свет и микрофоны Shure.',
+    description: 'Съёмка на 3 камеры Sony 4K.',
     priceText: 'от 6 000 ₽ / час',
   },
   shorts: {
     title: '📱 Пакет коротких видео',
-    description: 'Подготовка 20–25 вертикальных видео для Reels / TikTok.',
+    description: '20–25 коротких видео для Reels / TikTok.',
     priceText: 'от 25 000 ₽',
   },
   host: {
     title: '🎤 Ведущий / продюсер',
-    description: 'Подготовка, проведение интервью и раскрытие вашей экспертизы.',
+    description: 'Проведение интервью и раскрытие вашей экспертизы.',
     priceText: 'от 30 000 ₽',
   },
 }
@@ -92,7 +92,8 @@ export default function App() {
 
   useEffect(() => {
     setSelectedSlots([])
-  }, [shootDate])
+    setNeedEditing(false)
+  }, [shootDate, service])
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -243,13 +244,11 @@ export default function App() {
             <div className="eyebrow">Telegram Mini App</div>
             <h1 className="title">OnlyCast</h1>
           </div>
+
           <div className="badge">Запись за 1 минуту</div>
         </div>
 
-        <p className="hero-text">
-          Выберите услугу, получите предварительную стоимость, выберите удобное время и
-          забронируйте запись в студии.
-        </p>
+        <p className="hero-text">Выберите формат съёмки и отправьте заявку в студию.</p>
       </div>
 
       <div className="stack">
@@ -266,8 +265,7 @@ export default function App() {
           </div>
 
           <div className="gallery-info">
-            <p className="gallery-info-title">Пространство студии</p>
-            <p className="gallery-info-text">Несколько ракурсов студии до бронирования.</p>
+            <p className="gallery-info-title">Студия OnlyCast</p>
           </div>
 
           <div className="dots">
@@ -300,11 +298,6 @@ export default function App() {
             <div className="feature">
               <div className="feature-icon">💡</div>
               <div className="feature-label">Студийный свет</div>
-            </div>
-
-            <div className="feature">
-              <div className="feature-icon">🛠️</div>
-              <div className="feature-label">Помощь на площадке</div>
             </div>
           </div>
         </div>
@@ -342,41 +335,21 @@ export default function App() {
 
           <div className="field">
             <label className="label">Укажите желаемую дату</label>
-            <div className="help">После выбора даты Вы сможете выбрать удобное время записи.</div>
+            <div className="help">Выберите дату съёмки</div>
 
             <input
               className="input"
               type="date"
               value={shootDate}
-              onChange={(e) => setShootDate(e.target.value)}
+              onChange={(event) => setShootDate(event.target.value)}
             />
           </div>
-
-          {service === 'studio' && (
-            <div className="checkbox-box" style={{ marginTop: 16 }}>
-              <div className="checkbox-row">
-                <input
-                  type="checkbox"
-                  checked={needEditing}
-                  onChange={(e) => setNeedEditing(e.target.checked)}
-                />
-
-                <div>
-                  <div className="label">Добавить монтаж</div>
-                  <div className="help">
-                    Чистка звука, цветокоррекция, монтаж и подготовка файла для публикации.
-                  </div>
-                  <div className="appeal">+10 000 ₽ за каждый выбранный час исходного материала</div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {shootDate && (
             <div style={{ marginTop: 16 }}>
               <div className="label">Выберите удобные часы записи</div>
               <div className="help" style={{ marginTop: 6 }}>
-                График работы студии: с 10:00 до 22:00. Можно выбрать один или несколько часов.
+                Выберите время записи
               </div>
 
               <div className="slot-grid" style={{ marginTop: 12 }}>
@@ -404,6 +377,37 @@ export default function App() {
               )}
             </div>
           )}
+
+          {service === 'studio' && selectedSlots.length > 0 && (
+            <div
+              className={`checkbox-box ${needEditing ? 'active' : ''}`}
+              style={{ marginTop: 16 }}
+              onClick={() => setNeedEditing((prev) => !prev)}
+            >
+              <div className="checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={needEditing}
+                  onChange={(event) => setNeedEditing(event.target.checked)}
+                  onClick={(event) => event.stopPropagation()}
+                />
+
+                <div>
+                  <div className="label">Подготовка выпуска под публикацию</div>
+
+                  <div className="help-list">
+                    <div>• Обрезка выпуска</div>
+                    <div>• Монтаж по таймкодам</div>
+                    <div>• Переключение между 3 камерами</div>
+                    <div>• Сведение аудио и видео</div>
+                    <div>• Обложка выпуска</div>
+                  </div>
+
+                  <div className="appeal">+10 000 ₽ за 1 час готового видео</div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="card">
@@ -411,7 +415,7 @@ export default function App() {
 
           <div className="estimate-list">
             <EstimateRow label="Съёмка в студии" value={estimate.base} />
-            <EstimateRow label="Монтаж" value={estimate.editing} />
+            <EstimateRow label="Подготовка выпуска" value={estimate.editing} />
             <EstimateRow label="Пакет коротких видео" value={estimate.shorts} />
             <EstimateRow label="Ведущий / продюсер" value={estimate.host} />
 
@@ -421,7 +425,7 @@ export default function App() {
             </div>
 
             <div className="help">
-              Расчёт является предварительным. Итоговая стоимость может изменяться в зависимости от задач и дополнительных опций.
+              Расчёт предварительный. Итоговая стоимость зависит от задач.
             </div>
           </div>
         </div>
@@ -434,15 +438,9 @@ export default function App() {
             <textarea
               className="textarea"
               value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Например: требуется запись интервью, важен монтаж"
+              onChange={(event) => setComment(event.target.value)}
+              placeholder="Дополнительные пожелания"
             />
-          </div>
-
-          <div style={{ marginTop: 16 }}>
-            <div className="center-note">
-              После выбора даты и времени нажмите «Забронировать время» внизу экрана.
-            </div>
           </div>
         </div>
 
@@ -459,8 +457,7 @@ export default function App() {
           <div className="address-box" style={{ marginTop: 12 }}>
             <div>🚗</div>
             <div>
-              <p className="address-title">Бесплатная парковка у студии</p>
-              <p className="address-text">Собственное парковочное место для гостей.</p>
+              <p className="address-title">Бесплатная парковка</p>
             </div>
           </div>
         </div>

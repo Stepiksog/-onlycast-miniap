@@ -521,3 +521,24 @@ button {
     grid-template-columns: 1fr;
   }
 }
+.help-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.checkbox-box {
+  transition: border 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.checkbox-box.active {
+  border-color: rgba(255, 92, 0, 0.9);
+  background: rgba(255, 92, 0, 0.14);
+}
+
+.checkbox-box:active {
+  transform: scale(0.99);
+}

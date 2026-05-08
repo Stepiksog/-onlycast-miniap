@@ -542,3 +542,24 @@ button {
 .checkbox-box:active {
   transform: scale(0.99);
 }
+.date-card {
+  border-color: rgba(255, 92, 0, 0.34);
+}
+
+.date-header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.date-step {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 92, 0, 0.95);
+  color: #ffffff;
+  font-weight: 800;
+}

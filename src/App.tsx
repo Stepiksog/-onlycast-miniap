@@ -38,9 +38,9 @@ const HOST_PACKAGE_PRICE = 30000
 const STUDIO_ADDRESS = 'Москва, улица Правды, 8к13'
 
 const STUDIO_IMAGES = [
-  '/studio/photo1.jpg?v=11',
-  '/studio/photo2.jpg?v=11',
-  '/studio/photo3.jpg?v=11',
+  '/studio/photo1.jpg?v=12',
+  '/studio/photo2.jpg?v=12',
+  '/studio/photo3.jpg?v=12',
 ]
 
 const SERVICE_META: Record<ServiceKey, { title: string; description: string; priceText: string }> = {
@@ -330,13 +330,16 @@ export default function App() {
           </div>
         </div>
 
-        <div className="card">
-          <h2 className="card-title">2. Параметры заявки</h2>
+        <div className="card date-card">
+          <div className="date-header">
+            <div className="date-step">2</div>
+            <div>
+              <h2 className="card-title">Выберите дату съёмки</h2>
+              <div className="help">После выбора даты появятся доступные часы записи.</div>
+            </div>
+          </div>
 
-          <div className="field">
-            <label className="label">Укажите желаемую дату</label>
-            <div className="help">Выберите дату съёмки</div>
-
+          <div className="field" style={{ marginTop: 16 }}>
             <input
               className="input"
               type="date"

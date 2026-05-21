@@ -330,7 +330,7 @@ export default function App() {
           </div>
         </div>
 
-        <div className="card date-card">
+        <div className="card date-card premium-glow">
           <div className="date-header">
             <div className="date-step">2</div>
             <div>

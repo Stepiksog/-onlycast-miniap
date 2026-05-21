@@ -501,61 +501,163 @@ button {
   animation: spin 0.8s linear infinite;
 }
 
+/* ===========================
+   PREMIUM DATE CARD
+=========================== */
+
 .date-card {
   position: relative;
   overflow: hidden;
-  border-color: rgba(255, 92, 0, 0.34);
   isolation: isolate;
+  border: 1px solid rgba(255, 140, 70, 0.12);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.02),
+      rgba(255,255,255,0.01)
+    ),
+    rgba(12, 12, 12, 0.74);
+
+  box-shadow:
+    0 12px 40px rgba(0,0,0,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.04);
 }
 
+/* мягкое внутреннее свечение */
 .date-card::before {
   content: "";
   position: absolute;
-  inset: -2px;
+  inset: 0;
   z-index: -2;
-  border-radius: 28px;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg,
-    transparent 245deg,
-    rgba(255, 92, 0, 0.95) 285deg,
-    rgba(255, 175, 90, 1) 320deg,
-    transparent 360deg
-  );
-  animation: dateBorderFlow 3s linear infinite;
+  border-radius: 24px;
+
+  background:
+    radial-gradient(
+      circle at top,
+      rgba(255, 125, 40, 0.08),
+      transparent 58%
+    );
+
+  opacity: 0.8;
 }
 
+/* premium движущаяся линия */
 .date-card::after {
   content: "";
   position: absolute;
-  inset: 1px;
+  inset: -1px;
   z-index: -1;
-  border-radius: 23px;
-  background: rgba(12, 12, 12, 0.88);
-  backdrop-filter: blur(18px);
+  border-radius: 24px;
+  padding: 1.5px;
+
+  background:
+    conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      transparent 255deg,
+      rgba(255, 120, 40, 0.08) 280deg,
+      rgba(255, 150, 80, 0.85) 310deg,
+      rgba(255, 120, 40, 0.08) 340deg,
+      transparent 360deg
+    );
+
+  animation: premiumBorderMove 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+
+  filter: blur(0.5px);
+}
+
+/* плавное движение */
+@keyframes premiumBorderMove {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+
+  50% {
+    transform: rotate(180deg) scale(1.015);
+  }
+
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
 }
 
 .date-header {
+  position: relative;
+  z-index: 2;
+
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 12px;
+  gap: 14px;
   align-items: flex-start;
 }
 
 .date-step {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
+
   display: grid;
   place-items: center;
+
   border-radius: 999px;
-  background: rgba(255, 92, 0, 0.95);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 120, 20, 1),
+      rgba(255, 90, 0, 1)
+    );
+
   color: #ffffff;
   font-weight: 800;
+  font-size: 15px;
+
+  box-shadow:
+    0 0 24px rgba(255, 120, 40, 0.26),
+    inset 0 1px 1px rgba(255,255,255,0.15);
 }
 
-@keyframes dateBorderFlow {
-  to {
-    transform: rotate(360deg);
+/* поле даты */
+.date-card .input[type="date"] {
+  position: relative;
+  z-index: 2;
+
+  border: 1px solid rgba(255,255,255,0.1);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.08),
+      rgba(255,255,255,0.05)
+    );
+
+  transition:
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.25s ease;
+}
+
+.date-card .input[type="date"]:focus {
+  border-color: rgba(255, 120, 40, 0.72);
+
+  box-shadow:
+    0 0 0 4px rgba(255, 120, 40, 0.08),
+    0 0 30px rgba(255, 120, 40, 0.12);
+
+  transform: translateY(-1px);
+}
+
+@media (max-width: 420px) {
+  .date-card::before,
+  .date-card::after {
+    border-radius: 22px;
   }
 }
 
